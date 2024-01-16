@@ -17,10 +17,6 @@ class DataObject:
         self.num_generaciones = num_generaciones
         self.problema = problema
 
-def on_combobox_change(event):
-    selected_value = combobox_var.get()
-    print("Valor seleccionado:", selected_value)
-
 mainframe = ttk.Frame(root, padding="20 20 50 50")
 mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
 for i in range(15):

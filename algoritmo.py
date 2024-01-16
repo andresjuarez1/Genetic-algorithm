@@ -275,5 +275,4 @@ def podar():
     print("-------------poblacion despues de podar-----------------")
     for individuo in DNA.poblacion_general:
         print(individuo)
-
-
+ 
