@@ -81,7 +81,6 @@ ttk.Label(mainframe, text="selecciones uno:").grid(column=1, row=10, sticky=W)
 combobox_var = StringVar(value="Minimizacion")
 combobox=ttk.Combobox(mainframe, values=["maximizacion","minimizacion"],textvariable=combobox_var, state='readonly')
 combobox.grid(column=3, row=10, sticky=W)
-combobox.bind("<<ComboboxSelected>>", on_combobox_change)
 
 ttk.Button(mainframe, text="Iniciar", command=save_data).grid(column=2, row=12, sticky=W)
 

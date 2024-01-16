@@ -2,7 +2,8 @@ import math
 import os
 import random
 from sympy import symbols, lambdify
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt   
+import cv2
 
 
 class DNA:
@@ -51,6 +52,36 @@ class Estadisticas:
     def agregar_peor_individuo(cls, generacion, peor_individuo):
         cls.peor_individuo.append((generacion, peor_individuo))
 
+def ordenar_por_generacion(filename):
+    return int(filename.split('_')[-1].split('.')[0])
+
+def crear_video():
+    folder_path = 'generation_plots'
+    output_folder = 'video_output'
+
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    img_array = []
+    for filename in sorted(os.listdir(folder_path), key=ordenar_por_generacion):
+        if filename.endswith(".png"):
+            file_path = os.path.join(folder_path, filename)
+            img = cv2.imread(file_path)
+            img_array.append(img)
+
+    height, width, layers = img_array[0].shape
+    video_path = os.path.join(output_folder, 'generation_video.avi')
+    
+    # Ajusta el codec y la tasa de fotogramas según tus necesidades
+    out = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*'DIVX'), 2, (width, height))
+
+    for i in range(len(img_array)):
+        out.write(img_array[i])
+
+    out.release()
+
+    print(f"Video creado en: {video_path}")
+
     
 def plot_generation(generation, individuals):
     x_values = [individuo.x for individuo in individuals]
@@ -67,12 +98,10 @@ def plot_generation(generation, individuals):
 
     plt.savefig(os.path.join(folder_path, f'generation_{generation}.png'))
     plt.close()
+    crear_video()
     
 def calcular_valor_x(num_generado):
-    if DNA.limite_inf > DNA.limite_sup:
-        valor_X = DNA.limite_sup + num_generado*DNA.resolucion
-    else:
-        valor_x = DNA.limite_inf + num_generado*DNA.resolucion
+    valor_x = DNA.limite_inf + num_generado*DNA.resolucion
     return valor_x
 
 def calcular_funcion(funcion, valor_x):
@@ -275,4 +304,4 @@ def podar():
     print("-------------poblacion despues de podar-----------------")
     for individuo in DNA.poblacion_general:
         print(individuo)
- 
+
