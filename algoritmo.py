@@ -72,7 +72,6 @@ def crear_video():
     height, width, layers = img_array[0].shape
     video_path = os.path.join(output_folder, 'generation_video.avi')
     
-    # Ajusta el codec y la tasa de fotogramas según tus necesidades
     out = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*'DIVX'), 2, (width, height))
 
     for i in range(len(img_array)):
@@ -82,10 +81,10 @@ def crear_video():
 
     print(f"Video creado en: {video_path}")
 
-    
+     
 def plot_generation(generation, individuals):
     x_values = [individuo.x for individuo in individuals]
-    y_values = [individuo.y for individuo in individuals]
+    y_values = [individuo.y for individuo in individuals] 
 
     plt.scatter(x_values, y_values)
     plt.title(f'Generation {generation}')

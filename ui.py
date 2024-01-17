@@ -5,7 +5,7 @@ from algoritmo import algoritmo_genetico
 root = Tk()
 root.title("ALGORITMO GENÉTICO BY ANDRES JUÁREZ")
 
-class DataObject:
+class DataInfo:
     def __init__(self, pob_inicial, pob_max, resolucion, lim_inf, lim_sup, mut_ind, mut_gen,num_generaciones, problema):
         self.pob_inicial = pob_inicial
         self.pob_max = pob_max
@@ -34,7 +34,7 @@ def save_data():
     mut_gen_value = mut_gen.get()
     num_generaciones_value = num_generaciones.get()
     problema_value = combobox_var.get()
-    data = DataObject(p_inicial_value, p_max_value, resolucion_value, lim_inf_value, lim_sup_value, mut_ind_value, mut_gen_value, num_generaciones_value, problema_value)
+    data = DataInfo(p_inicial_value, p_max_value, resolucion_value, lim_inf_value, lim_sup_value, mut_ind_value, mut_gen_value, num_generaciones_value, problema_value)
     algoritmo_genetico(data)        
 
 
@@ -79,7 +79,7 @@ ttk.Spinbox(mainframe, textvariable=mut_ind).grid(column=3, row=8)
 
 ttk.Label(mainframe, text="selecciones uno:").grid(column=1, row=10, sticky=W)
 combobox_var = StringVar(value="Minimizacion")
-combobox=ttk.Combobox(mainframe, values=["maximizacion","minimizacion"],textvariable=combobox_var, state='readonly')
+combobox=ttk.Combobox(mainframe, values=["Maximizacion","Minimizacion"],textvariable=combobox_var, state='readonly')
 combobox.grid(column=3, row=10, sticky=W)
 
 ttk.Button(mainframe, text="Iniciar", command=save_data).grid(column=2, row=12, sticky=W)
