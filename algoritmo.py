@@ -87,6 +87,7 @@ def plot_generation(generation, individuals):
     y_values = [individuo.y for individuo in individuals] 
 
     plt.scatter(x_values, y_values)
+    plt.xlim(DNA.limite_inf, DNA.limite_sup) 
     plt.title(f'Generation {generation}')
     plt.xlabel('X')
     plt.ylabel('Y')
