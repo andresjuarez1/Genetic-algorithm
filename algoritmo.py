@@ -7,12 +7,12 @@ import cv2
 
 
 class DNA:
-    num_bits = 1
+    numeroBits = 1
     rango = 0
-    rango_numero = 0
+    numeroRango = 0
     resolucion = 0
-    limite_inf = 0
-    limite_sup = 0
+    limiteInferior = 0
+    limiteSuperior = 0
     poblacion_inicial = 0
     poblacion_maxima = 0
     tipo_problema = ""
@@ -34,7 +34,6 @@ class Individuo:
     def __str__(self):
         return f"id: {self.id}, i: {self.i}, num.binario: {self.binario}, posición en X: {self.x}, posición en Y: {self.y}"
 
-#GENERACION DE GRÁFICAS Y FOTOS
 class Estadisticas:
     promedio = []
     peor_individuo = []
@@ -55,6 +54,7 @@ class Estadisticas:
 def ordenar_por_generacion(filename):
     return int(filename.split('_')[-1].split('.')[0])
 
+#GENERACION DE GRÁFICAS Y FOTOS DE TODAS LAS GENERACIONES
 def crear_video():
     folder_path = 'generation_plots'
     output_folder = 'video_output'
@@ -87,7 +87,7 @@ def plot_generation(generation, individuals):
     y_values = [individuo.y for individuo in individuals] 
 
     plt.scatter(x_values, y_values)
-    plt.xlim(DNA.limite_inf, DNA.limite_sup) 
+    plt.xlim(DNA.limiteInferior, DNA.limiteSuperior) 
     plt.title(f'Generation {generation}')
     plt.xlabel('X')
     plt.ylabel('Y')
@@ -98,10 +98,11 @@ def plot_generation(generation, individuals):
 
     plt.savefig(os.path.join(folder_path, f'generation_{generation}.png'))
     plt.close()
-    crear_video()
+    crear_video()   
+#GENERACION DE GRÁFICAS Y FOTOS DE TODAS LAS GENERACIONES
     
-def calcular_valor_x(num_generado):
-    valor_x = DNA.limite_inf + num_generado*DNA.resolucion
+def calcular_x(num_generado):
+    valor_x = DNA.limiteInferior + num_generado*DNA.resolucion
     return valor_x
 
 def calcular_funcion(funcion, valor_x):
@@ -110,32 +111,29 @@ def calcular_funcion(funcion, valor_x):
     resultado = expresion(valor_x)
     return resultado
 
-
-
 def calcular_datos():
-    DNA.rango = DNA.limite_sup - DNA.limite_inf
+    DNA.rango = DNA.limiteSuperior - DNA.limiteInferior
     saltos = DNA.rango/DNA.resolucion
     puntos = saltos + 1
-    num_bits = int(math.log2(puntos) + 1)
-    DNA.rango_numero= 2**num_bits -1 
-    DNA.num_bits = len(bin(DNA.rango_numero)[2:])
+    numeroBits = int(math.log2(puntos) + 1)
+    DNA.numeroRango= 2**numeroBits -1 
+    DNA.numeroBits = len(bin(DNA.numeroRango)[2:])
     
 def primer_poblacion():
         for i in range(DNA.poblacion_inicial):
-            num_generado = (random.randint(0, DNA.rango_numero))
-            num_generado_binario = (bin(num_generado)[2:]).zfill(DNA.num_bits)
-            valor_x = calcular_valor_x(num_generado)
+            num_generado = (random.randint(0, DNA.numeroRango))
+            num_generado_binario = (bin(num_generado)[2:]).zfill(DNA.numeroBits)
+            valor_x = calcular_x(num_generado)
             valor_y = calcular_funcion(formula, valor_x)
             individuo = Individuo(i=num_generado, binario=num_generado_binario, x=valor_x, y= valor_y)
             DNA.poblacion_general.append(individuo)
 
-def algoritmo_genetico(data):   
- 
+def algoritmo_genetico(data):
     DNA.poblacion_inicial = int(data.pob_inicial)
     DNA.poblacion_maxima = int(data.pob_max)
     DNA.resolucion = float(data.resolucion)
-    DNA.limite_inf = float(data.lim_inf)
-    DNA.limite_sup = float(data.lim_sup)
+    DNA.limiteInferior = float(data.lim_inf)
+    DNA.limiteSuperior = float(data.lim_sup)
     DNA.prob_mut_individuo = float(data.mut_ind)
     DNA.prob_mut_gen = float(data.mut_gen)
     DNA.tipo_problema = data.problema
@@ -174,18 +172,18 @@ def optimizar():
     
     mitad = int(len(individuos_ordenados) / 2)
     
-    part_mejor_aptitud = individuos_ordenados[:mitad]
+    mejor_aptitud = individuos_ordenados[:mitad] 
     
-    
-    part_menor_aptitud = individuos_ordenados[mitad:]
+    menor_aptitud = individuos_ordenados[mitad:]
     
     resto_poblacion = []
-    for individuo in part_menor_aptitud:
+    for individuo in menor_aptitud:
         resto_poblacion.append(individuo)
         
-    emparejar(resto_poblacion, part_mejor_aptitud)
-    return part_mejor_aptitud[0], resto_poblacion[-1]
+    emparejar(resto_poblacion, mejor_aptitud)
+    return mejor_aptitud[0], resto_poblacion[-1]
 
+#GENERACION DE GRÁFICA DEL MEJOR, PEOR Y PROMEDIO
 def plot_stats():
     generaciones = [generacion for generacion, _ in Estadisticas.mejor_individuo]
     mejores_y = [mejor_individuo.y for _, mejor_individuo in Estadisticas.mejor_individuo]
@@ -207,28 +205,27 @@ def plot_stats():
 
     plt.savefig(os.path.join(folder_path, 'population_stats.png'))
     plt.close()
+#GENERACION DE GRÁFICAS Y FOTOS DE TODAS LAS GENERACIONES
 
-def emparejar(resto_poblacion, part_mejor_aptitud):
-    
-    new_poblacion = []
+def emparejar(resto_poblacion, mejor_aptitud):
+    new_poblation = []
     for individuo in resto_poblacion:
-        new_poblacion.append(individuo)
+        new_poblation.append(individuo)
     
     
-    for individuo in part_mejor_aptitud:
-        new_poblacion.append(individuo)
+    for individuo in mejor_aptitud:
+        new_poblation.append(individuo)
 
-    for mejor_individuo in part_mejor_aptitud:
+    for mejor_individuo in mejor_aptitud:
         for individuo in resto_poblacion:
             
             new_individuo1, new_individuo2 = cruzar(mejor_individuo, individuo)
-            new_poblacion.append(new_individuo1)
-            new_poblacion.append(new_individuo2)
+            new_poblation.append(new_individuo1)
+            new_poblation.append(new_individuo2)
 
 
 def cruzar(mejor_individuo, individuo): 
-    
-    puntoDeCruza = int(DNA.num_bits / 2)
+    puntoDeCruza = int(DNA.numeroBits / 2)
     
     p1 = mejor_individuo.binario[:puntoDeCruza]
     p2 = mejor_individuo.binario[puntoDeCruza:]
@@ -248,8 +245,6 @@ def cruzar(mejor_individuo, individuo):
     podar()
     return new_individuo_1, new_individuo_2
 
-
-
 def mutar(individuo):
     binarioSeparado = list(individuo)
     
@@ -264,8 +259,8 @@ def mutar(individuo):
 def nuevos_individuos(individuo1, individuo2):
     numero_decimal1 = int(individuo1, 2)
     numero_decimal2 = int(individuo2, 2)
-    x1 = DNA.limite_inf + numero_decimal1*DNA.resolucion
-    x2 = DNA.limite_inf + numero_decimal2*DNA.resolucion
+    x1 = DNA.limiteInferior + numero_decimal1*DNA.resolucion
+    x2 = DNA.limiteInferior + numero_decimal2*DNA.resolucion
     y1 = calcular_funcion(formula, x1)
     y2 = calcular_funcion(formula, x2)
     
@@ -278,16 +273,16 @@ def nuevos_individuos(individuo1, individuo2):
 
 
 def podar():
-    i_conjunta = set()
+    iConjunta = set()
     
-    poblacion_unique = []
+    poblacionUnica = []
 
     for individuo in DNA.poblacion_general:
-        if individuo.i not in i_conjunta:
-            i_conjunta.add(individuo.i)
-            poblacion_unique.append(individuo)
-
-    DNA.poblacion_general = poblacion_unique
+        if individuo.i not in iConjunta:
+            iConjunta.add(individuo.i)
+            poblacionUnica.append(individuo)
+            
+    DNA.poblacion_general = poblacionUnica
 
 
     bandera = True
@@ -299,8 +294,7 @@ def podar():
     if len(individuos_ordenados) > DNA.poblacion_maxima:
         DNA.poblacion_general = individuos_ordenados[:DNA.poblacion_maxima]
  
- 
- 
+  
     print("-------------poblacion despues de podar-----------------")
     for individuo in DNA.poblacion_general:
         print(individuo)
