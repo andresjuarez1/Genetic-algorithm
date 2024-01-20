@@ -83,14 +83,18 @@ def crear_video():
 
      
 def plot_generation(generation, individuals):
-    x_values = [individuo.x for individuo in individuals]
+    x_values = [ind.x for ind in individuals]
     y_values = [ind.y for ind in individuals]
 
     best_individual = max(individuals, key=lambda ind: ind.y)
-    best_color = 'r'  # Puedes elegir cualquier color que desees para resaltar al mejor individuo.
+    worst_individual = min(individuals, key=lambda ind: ind.y)
 
-    plt.scatter(x_values, y_values, c='b')  # Usar 'b' (blue) como color predeterminado para el resto de los individuos.
+    best_color = 'r'  # Color para resaltar al mejor individuo.
+    worst_color = 'g'  # Color para resaltar al peor individuo.
+
+    plt.scatter(x_values, y_values, c='b', label='Other Individuals')  # Usar 'b' (blue) como color predeterminado para el resto de los individuos.
     plt.scatter(best_individual.x, best_individual.y, c=best_color, label='Best Individual')
+    plt.scatter(worst_individual.x, worst_individual.y, c=worst_color, label='Worst Individual')
 
     plt.xlim(DNA.limiteInferior, DNA.limiteSuperior)
     plt.title(f'Generation {generation}')
