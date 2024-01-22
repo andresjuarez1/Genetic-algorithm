@@ -217,7 +217,7 @@ def plot_stats():
     plt.plot(generaciones, peores_y, label='Peor Individuo')
     plt.plot(generaciones, promedio_y, label='Promedio')
 
-    plt.title('Estadísticas de la Población por Generación')
+    plt.title('Evolución del fitness')
     plt.xlabel('Generación')
     plt.ylabel('Valor de la Función Objetivo')
     plt.legend()
