@@ -83,21 +83,22 @@ def crear_video():
 
      
 def plot_generation(generation, individuals):
-    x_values = [ind.x for ind in individuals]
-    y_values = [ind.y for ind in individuals]
+    x_values = [individuo.x for individuo in individuals]
+    y_values = [individuo.y for individuo in individuals] 
+    mejor_individuo = max(individuals, key=lambda x: x.y)
+    peor_individuo = min(individuals, key=lambda x: x.y)
 
-    best_individual = max(individuals, key=lambda ind: ind.y)
-    worst_individual = min(individuals, key=lambda ind: ind.y)
-
-    best_color = 'r'  # Color para resaltar al mejor individuo.
-    worst_color = 'g'  # Color para resaltar al peor individuo.
-
-    plt.scatter(x_values, y_values, c='b', label='Other Individuals')  # Usar 'b' (blue) como color predeterminado para el resto de los individuos.
-    plt.scatter(best_individual.x, best_individual.y, c=best_color, label='Best Individual')
-    plt.scatter(worst_individual.x, worst_individual.y, c=worst_color, label='Worst Individual')
-
-    plt.xlim(DNA.limiteInferior, DNA.limiteSuperior)
-    plt.title(f'Generation {generation}')
+    if DNA.tipoProblema == "Maximizacion":
+        plt.scatter(x_values, y_values)
+        plt.scatter(mejor_individuo.x, mejor_individuo.y, color='green', label='Mejor Individuo')
+        plt.scatter(peor_individuo.x, peor_individuo.y, color='red', label='Peor Individuo')
+    else:
+        plt.scatter(x_values, y_values)
+        plt.scatter(mejor_individuo.x, mejor_individuo.y, color='red', label='Peor Individuo')
+        plt.scatter(peor_individuo.x, peor_individuo.y, color='green', label='Mejor Individuo')
+        
+    plt.xlim(DNA.limiteInferior, DNA.limiteSuperior) 
+    plt.title(f'Generacion {generation}')
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.legend()
@@ -109,15 +110,25 @@ def plot_generation(generation, individuals):
     plt.savefig(os.path.join(folder_path, f'generation_{generation}.png'))
     plt.close()
     crear_video()
- 
+    print(mejor_individuo)
 #GENERACION DE GRÁFICAS Y FOTOS DE TODAS LAS GENERACIONES
     
     
-def calcular_x(num_generado):   
-    num_generado = max(min(num_generado, DNA.numeroRango), 0) # LINEA PARA RESOLVER LOS PROBLEMAS DE LAS GRÁFICAS QUE SALEN DE RANGO
-    
-    valor_x = DNA.limiteInferior + num_generado*DNA.resolucion
+def calcular_x(num_generado):
+    num_generado = max(min(num_generado, DNA.numeroRango), 0)
+    valor_x = DNA.limiteInferior + num_generado * DNA.resolucion
+    valor_x = max(min(valor_x, DNA.limiteSuperior), DNA.limiteInferior)
     return valor_x
+
+
+def primerPoblacion():
+        for i in range(DNA.poblacionInicial):
+            num_generado = (random.randint(0, DNA.numeroRango))
+            num_generado_binario = (bin(num_generado)[2:]).zfill(DNA.numeroBits)
+            valor_x = calcular_x(num_generado)
+            valor_y = calcular_funcion(formula, valor_x)
+            individuo = Individuo(i=num_generado, binario=num_generado_binario, x=valor_x, y= valor_y)
+            DNA.poblacionGeneral.append(individuo)
 
 
 def calcular_funcion(funcion, valor_x):
@@ -127,23 +138,17 @@ def calcular_funcion(funcion, valor_x):
     return resultado
 
 
-def calcular_datos():
+def calculoDatos():
     DNA.rango = DNA.limiteSuperior - DNA.limiteInferior
     saltos = DNA.rango/DNA.resolucion
     puntos = saltos + 1
-    numeroBits = int(math.log2(puntos) + 1)
+    numeroBits = int(math.log2(puntos))
+    
+    
     DNA.numeroRango= 2**numeroBits -1 
     DNA.numeroBits = len(bin(DNA.numeroRango)[2:])
     
     
-def primer_poblacion():
-        for i in range(DNA.poblacionInicial):
-            num_generado = (random.randint(0, DNA.numeroRango))
-            num_generado_binario = (bin(num_generado)[2:]).zfill(DNA.numeroBits)
-            valor_x = calcular_x(num_generado)
-            valor_y = calcular_funcion(formula, valor_x)
-            individuo = Individuo(i=num_generado, binario=num_generado_binario, x=valor_x, y= valor_y)
-            DNA.poblacionGeneral.append(individuo)
 
 
 def algoritmo_genetico(data):
@@ -157,8 +162,8 @@ def algoritmo_genetico(data):
     DNA.tipoProblema = data.problema
     DNA.num_generaciones = int(data.num_generaciones)
     
-    calcular_datos()
-    primer_poblacion()
+    calculoDatos()
+    primerPoblacion()
     
     for generacion in range(1, DNA.num_generaciones + 1):
         print(f"\ngeneracion {generacion}:")
@@ -291,15 +296,12 @@ def nuevos_individuos(individuo1, individuo2):
 
 
 def podar():
-    iConjunta = set()
-    posicionesConjunta = set()
-
     poblacionUnica = []
+    iConjunta = set()
 
-    for individuo in DNA.poblacionGeneral:
-        if individuo.i not in iConjunta and individuo.i not in posicionesConjunta:
+    for individuo in DNA.poblacionGeneral[:]:
+        if individuo.i not in iConjunta:
             iConjunta.add(individuo.i)
-            posicionesConjunta.add(individuo.i)
             poblacionUnica.append(individuo)
 
     DNA.poblacionGeneral = poblacionUnica
@@ -312,7 +314,7 @@ def podar():
     if len(individuos_ordenados) > DNA.poblacionMaxima:
         DNA.poblacionGeneral = individuos_ordenados[:DNA.poblacionMaxima]
 
-    print("-------------poblacion despues de podar-----------------")
+    print("-------------Población después de la poda-----------------")
     for individuo in DNA.poblacionGeneral:
         print(individuo)
 
