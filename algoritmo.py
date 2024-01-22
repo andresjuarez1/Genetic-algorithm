@@ -21,7 +21,7 @@ class DNA:
     probMutacionGen = 0
     num_generaciones = 0 
 
-formula = "(x**2 * cos(x))/100 + x**2 *sin(x)" 
+formula = "x*cos(x)*sin(x)" 
 class Individuo:
     identificador = 0
     def __init__(self, binario, i, x, y):
@@ -191,13 +191,13 @@ def optimizar():
     
     if DNA.tipoProblema == "Minimizacion":
         bandera = False
-    individuos_ordenados = sorted(DNA.poblacionGeneral, key=lambda x: x.y, reverse=bandera)
+    ordenIndividuos = sorted(DNA.poblacionGeneral, key=lambda x: x.y, reverse=bandera)
     
-    mitad = int(len(individuos_ordenados) / 2)
+    mitad = int(len(ordenIndividuos) / 2)
     
-    mejor_aptitud = individuos_ordenados[:mitad] 
+    mejor_aptitud = ordenIndividuos[:mitad] 
     
-    menor_aptitud = individuos_ordenados[mitad:]
+    menor_aptitud = ordenIndividuos[mitad:]
     
     resto_poblacion = []
     for individuo in menor_aptitud:
@@ -306,15 +306,14 @@ def podar():
 
     DNA.poblacionGeneral = poblacionUnica
 
-    bandera = True
-    if DNA.tipoProblema == "Minimizacion":
-        bandera = False
-    individuos_ordenados = sorted(DNA.poblacionGeneral, key=lambda x: x.y, reverse=bandera)
+    bandera = DNA.tipoProblema != "Minimizacion"
+    ordenIndividuos = sorted(DNA.poblacionGeneral, key=lambda x: x.y, reverse=bandera)
 
-    if len(individuos_ordenados) > DNA.poblacionMaxima:
-        DNA.poblacionGeneral = individuos_ordenados[:DNA.poblacionMaxima]
+    if len(ordenIndividuos) > DNA.poblacionMaxima:
+        DNA.poblacionGeneral = ordenIndividuos[:DNA.poblacionMaxima]
 
     print("-------------Población después de la poda-----------------")
     for individuo in DNA.poblacionGeneral:
         print(individuo)
+
 
