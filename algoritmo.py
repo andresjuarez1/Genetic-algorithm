@@ -23,7 +23,9 @@ class DNA:
     probMutacionGen = 0
     num_generaciones = 0 
 
-formula = "sin(x)*cos(x)*log(1+(0.1 + abs(x)**1.4))" 
+# formula = "sin(x)*cos(x)*log(1+(0.1 + abs(x)**1.4))" 
+formula = "((x**3*(log(0.1 + abs(x**2))+3*cos(x)))/x**2+1)" 
+ 
 class Individuo:
     identificador = 0
     def __init__(self, binario, i, x, y):
