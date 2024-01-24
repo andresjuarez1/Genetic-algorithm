@@ -98,7 +98,7 @@ def plot_generation(generation):
     # mejor_individuo = max(individuals, key=lambda x: x.y)
     # peor_individuo = min(individuals, key=lambda x: x.y) 
 
-    plt.scatter(x_values, y_values, label="individuos", s=290, c="#45aaf2", alpha=0.4)
+    plt.scatter(x_values, y_values, label="individuos", s=90, c="#45aaf2", alpha=0.4)
     
     if DNA.tipoProblema == "Maximizacion":
         mejorIndividuoY = max(DNA.poblacionGeneral, key=lambda individuo:individuo.y)
@@ -112,8 +112,8 @@ def plot_generation(generation):
         y_func = expresion(x_func)
         plt.plot(x_func, y_func)
         
-        plt.scatter(mejorIndividuoX, mejorIndividuoY.y, c='green', label='Mejor Individuo', s=290)
-        plt.scatter(peorIndividuoX, peorIndividuoY.y, c='red', label='Peor Individuo', s=290)
+        plt.scatter(mejorIndividuoX, mejorIndividuoY.y, c='green', label='Mejor Individuo', s=90)
+        plt.scatter(peorIndividuoX, peorIndividuoY.y, c='red', label='Peor Individuo', s=90)
     else:
         mejorIndividuoY = min(DNA.poblacionGeneral, key=lambda individuo:individuo.y)
         mejorIndividuoX = mejorIndividuoY.x
@@ -126,8 +126,8 @@ def plot_generation(generation):
         y_func = expresion(x_func)
         plt.plot(x_func, y_func)
         
-        plt.scatter(mejorIndividuoX, mejorIndividuoY.y, color='green', label='Mejor individuo')
-        plt.scatter(peorIndividuoX, peorIndividuoY.y, color='red', label='Peor individuo')
+        plt.scatter(mejorIndividuoX, mejorIndividuoY.y, c='green', label='Mejor Individuo', s=90)
+        plt.scatter(peorIndividuoX, peorIndividuoY.y,  c='red', label='Peor Individuo', s=90)
 
     plt.legend()
 
@@ -358,4 +358,4 @@ def podar():
     for individuo in DNA.poblacionGeneral:
         print(individuo) 
 
-
+ 
