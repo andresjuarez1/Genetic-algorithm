@@ -5,6 +5,7 @@ from sympy import symbols, lambdify
 import matplotlib.pyplot as plt   
 import cv2
 import numpy as np
+from matplotlib.animation import FuncAnimation
 
 
 class DNA:
@@ -83,9 +84,81 @@ def crear_video():
 
     out.release()
 
-    print(f"Video creado en: {video_path}")
+    print(f"Video creado en: {video_path}") 
+    
 
-     
+
+def animarPlot(x, y):    
+    fig, ax = plt.subplots()
+    
+    def actualizarPlot(i):
+        ax.clear()        
+        ax.scatter(x[:i], y[:i])
+        # Ajustar los ejes según sea necesario
+        ax.set_xlim([1.1 * np.min(x), 1.1 * np.max(x)])
+        ax.set_ylim([1.1 * np.min(y), 1.1 * np.max(y)])
+
+    animacion = FuncAnimation(fig, actualizarPlot, range(len(x)), interval=0, cache_frame_data=False, repeat=False)
+
+    return fig, animacion
+
+def grabarVideo(animacion, nombre_video):
+    fig, animar = animacion
+
+    # Cambiar el formato del video a ".gif"
+    nombre_video_gif = nombre_video.replace(".mp4", ".gif")
+    
+    # Utilizar el escritor predeterminado de Matplotlib con formato ".gif"
+    animar.save(nombre_video_gif, writer='pillow', fps=60, dpi=100)
+
+    plt.close(fig)
+
+
+
+def unirVariosVideos(listaAnimaciones, listaVideos):
+    videos = []
+    
+    for i in range(len(listaAnimaciones)):
+        fig, animar = listaAnimaciones[i]    
+        animar.save(listaVideos[i], writer='ffmpeg', fps=60, dpi=100)
+        plt.close(fig)
+        videos.append(cv2.VideoCapture(listaVideos[i]))
+        os.remove(listaVideos[i])
+    
+    ancho = int(videos[0].get(cv2.CAP_PROP_FRAME_WIDTH))
+    alto = int(videos[0].get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = int(videos[0].get(cv2.CAP_PROP_FPS))
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    video_combinado = cv2.VideoWriter('video_final.mp4', fourcc, fps, (ancho, alto))
+    
+    for video in videos:
+        while True:
+            ret, frame = video.read()
+            if not ret:
+                break
+            video_combinado.write(frame)
+    
+    for video in videos:
+        video.release()
+    
+    video_combinado.release()
+
+def reproducirVideo(nombre_video):
+    video = cv2.VideoCapture(nombre_video)
+    
+    while True:
+        ret, frame = video.read()
+        if not ret:
+            break
+        cv2.imshow('Video Final', frame)
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            break
+    
+    video.release()
+    cv2.destroyAllWindows()
+
+    
+    
 def plot_generation(generation):
     plt.clf()
     plt.xlim(DNA.limiteInferior, DNA.limiteSuperior) 
@@ -198,7 +271,18 @@ def algoritmo_genetico(data):
     for generacion in range(1, DNA.num_generaciones + 1):
         print(f"\ngeneracion {generacion}:")
         inicializar(generacion)
+        
+        x_values = [individuo.x for individuo in DNA.poblacionGeneral]
+        y_values = [individuo.y for individuo in DNA.poblacionGeneral]
+
+        # Llama a la función plot_generation() con las coordenadas
         plot_generation(generacion)
+
+        nombre_video = f'gif_generacion_{generacion}.mp4'
+
+        # Llama a grabarVideo() con la animación y el nombre del video
+        grabarVideo(animacion=animarPlot(x_values, y_values), nombre_video=nombre_video)
+        # unirVariosVideos()
         podar()
 
     for individuo in DNA.poblacionGeneral:
@@ -358,4 +442,4 @@ def podar():
     for individuo in DNA.poblacionGeneral:
         print(individuo) 
 
- 
+
