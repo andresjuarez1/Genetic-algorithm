@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import cv2
 import numpy as np
 from matplotlib.animation import FuncAnimation
+import imageio
 
 
 class DNA:
@@ -61,30 +62,43 @@ def ordenar_por_generacion(filename):
 
 #GENERACION DE GRÁFICAS Y FOTOS DE TODAS LAS GENERACIONES
 def crear_video():
-    folder_path = 'generation_plots'
+    folder_path = 'generation_plots_gif'
     output_folder = 'video_output'
 
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
-    img_array = []
-    for filename in sorted(os.listdir(folder_path), key=ordenar_por_generacion):
-        if filename.endswith(".png"):
-            file_path = os.path.join(folder_path, filename)
-            img = cv2.imread(file_path)
-            img_array.append(img)
+    gif_paths = [os.path.join(folder_path, filename) for filename in sorted(os.listdir(folder_path), key=ordenar_por_generacion) if filename.endswith(".gif")]
 
-    height, width, layers = img_array[0].shape
-    video_path = os.path.join(output_folder, 'generation_video.avi')
-    
-    out = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*'DIVX'), 2, (width, height))
+    if not gif_paths:
+        print("No hay archivos GIF válidos en la carpeta. No se puede crear el video.")
+        return
 
-    for i in range(len(img_array)):
-        out.write(img_array[i])
+    images = []
+    for gif_path in gif_paths:
+        gif = imageio.mimread(gif_path)
+        images.extend(gif)
+        
+        num_frames_padding = 20
+        for _ in range(num_frames_padding):
+            images.append(gif[-1])
 
-    out.release()
+    num_channels = images[0].shape[-1]
+    images = [img if img.shape[-1] == num_channels else np.tile(img[..., :1], (1, 1, 3)) for img in images]
 
-    print(f"Video creado en: {video_path}") 
+    height, width, _ = images[0].shape
+    video_path = os.path.join(output_folder, 'AndresJuarezVideo.mp4')
+
+    fps = 2
+    writer = imageio.get_writer(video_path, fps=fps)
+
+    for image in images:
+        writer.append_data(image)
+
+    writer.close()
+
+    print(f"Video creado en: {video_path}")
+
     
 
 
@@ -94,7 +108,6 @@ def animarPlot(x, y):
     def actualizarPlot(i):
         ax.clear()        
         ax.scatter(x[:i], y[:i])
-        # Ajustar los ejes según sea necesario
         ax.set_xlim([1.1 * np.min(x), 1.1 * np.max(x)])
         ax.set_ylim([1.1 * np.min(y), 1.1 * np.max(y)])
 
@@ -105,14 +118,17 @@ def animarPlot(x, y):
 def grabarVideo(animacion, nombre_video):
     fig, animar = animacion
 
-    # Cambiar el formato del video a ".gif"
     nombre_video_gif = nombre_video.replace(".mp4", ".gif")
     
-    # Utilizar el escritor predeterminado de Matplotlib con formato ".gif"
     animar.save(nombre_video_gif, writer='pillow', fps=60, dpi=100)
 
-    plt.close(fig)
-
+    folder_path = 'generation_plots_gif'  
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    
+    gif_path = os.path.join(folder_path, nombre_video_gif.split('/')[-1])
+    os.rename(nombre_video_gif, gif_path)
+    plt.close(fig)  
 
 
 def unirVariosVideos(listaAnimaciones, listaVideos):
@@ -277,7 +293,7 @@ def algoritmo_genetico(data):
 
         # Llama a la función plot_generation() con las coordenadas
         plot_generation(generacion)
-
+        
         nombre_video = f'gif_generacion_{generacion}.mp4'
 
         # Llama a grabarVideo() con la animación y el nombre del video
